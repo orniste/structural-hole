@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>結構洞｜網路世代</title>
+
+<style>
+:root {
+    --bg-main: #050505;
+    --text-main: #e0e0e0;
+    --text-muted: #8a8a8a;
+    --neon-cyan: #00f3ff;
+    --neon-blue: #0066ff;
+    --glow-cyan: rgba(0, 243, 255, 0.6);
+    --glow-blue: rgba(0, 102, 255, 0.4);
+}
+
+::selection {
+    background: var(--neon-cyan);
+    color: #000;
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: "SF Pro TC", "PingFang TC", "Noto Sans TC", sans-serif;
+    line-height: 2;
+    letter-spacing: 0.06em;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 102, 255, 0.1) 0%, transparent 70%),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+}
+
+/* 頂部霓虹進度條 */
+.progress-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 9999;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+    box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-cyan);
+    transition: width 0.15s ease-out;
+}
+
+/* Header 標題設計 */
+header {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 15%;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+    position: relative;
+}
+
+.magazine-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    margin: 0;
+}
+
+.magazine-title span {
+    color: #fff;
+    text-shadow: 
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px var(--neon-cyan),
+        0 0 40px var(--neon-cyan);
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--neon-cyan);
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    opacity: 0.8;
+}
+
+/* 內文區塊 */
+.container {
+    width: 90%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding-top: 60px;
+    padding-bottom: 100px;
+}
+
+/* 文章主標題與副標 */
+.article-title {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.article-title span {
+    display: block;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--neon-cyan);
+    margin-top: 15px;
+    font-weight: 400;
+}
+
+/* 段落小標題 */
+.section-title {
+    font-size: 1.5rem;
+    color: var(--neon-cyan);
+    margin-top: 100px;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+    display: inline-block;
+    box-shadow: 0 10px 10px -10px var(--glow-cyan);
+}
+
+p {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    text-align: justify;
+    transition: color 0.5s ease;
+}
+
+p:hover {
+    color: var(--text-main);
+}
+
+/* 捲動揭露動畫 */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* 動態金句區塊 */
+.quote-wrapper {
+    height: 100vh;
+    position: relative;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.sticky-quote {
+    position: sticky;
+    top: 45vh;
+    width: 100%;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #fff;
+    
+    background: rgba(0, 243, 255, 0.03);
+    border: 1px solid rgba(0, 243, 255, 0.1);
+    border-left: 4px solid var(--neon-cyan);
+    padding: 25px 35px;
+    border-radius: 4px 8px 8px 4px;
+    
+    box-shadow: 
+        -5px 0 20px -5px var(--glow-cyan),
+        inset 0 0 15px rgba(0, 243, 255, 0.02);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.8s ease;
+}
+
+.sticky-quote.active {
+    opacity: 1;
+    transform: translateX(0);
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+}
+
+/* 打字機閃爍游標 */
+.cursor::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 1.2em;
+    background-color: var(--neon-cyan);
+    vertical-align: text-bottom;
+    margin-left: 5px;
+    box-shadow: 0 0 8px var(--neon-cyan);
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<header>
+    <div class="subtitle">Vol.1 Platform & Trust</div>
+    <div class="magazine-title">結構洞｜<span>網路世代</span></div>
+</header>
+
+<div class="container">
+
+    <h1 class="article-title reveal">
+        當任何人都能編輯知識時，我們為什麼仍然相信它？
+        <span>——從「折毛事件」看維基百科的真實性與信任機制</span>
+    </h1>
+
+    <p class="reveal">維基百科曾出現一段虛構的歷史，且長達十餘年未被發現。從人物、事件到文獻，這套虛構的「古俄羅斯史」被書寫得完整而嚴謹，甚至通過多次編輯與審核，成為被認可的條目之一。</p>
+
+    <h2 class="section-title reveal">被虛構的歷史　折毛事件的出現</h2>
+
+    <p class="reveal">這起被稱為「折毛事件」的案例，是中文維基百科史上規模最大的造假事件之一。自2010年起，編輯者「折毛」長期建構一套彼此關聯的歷史，透過將真實史料與虛構內容交錯書寫，並偽造外語學術來源，使內容呈現高度可信的樣貌。如：引用真實存在的俄羅斯歷史著作，卻故意標註不存在的頁碼，或是引用根本不存在的中文譯本。同時，他利用冷門領域的資訊落差與多重帳號操作，進一步營造出「已被驗證」的假象。</p>
+
+    <p class="reveal">直到2022年，一名小說家在查找資料時發現內容邏輯矛盾，這場長達十餘年的造假才被揭露，最終，維基百科刪除兩百多個相關條目並封禁該用戶。此事件不僅動搖大眾對開放編輯平台的信任，也揭示：在群體協作的知識體系中，錯誤不僅可能存在，甚至可能被精密建構並長期維持。</p>
+
+    <!-- 視覺拉花：金句 1 -->
+    <div class="quote-wrapper">
+        <div class="sticky-quote" data-text="錯誤不僅可能存在，甚至可能被精密建構並長期維持。"></div>
+    </div>
+
+    <p class="reveal">折毛事件之所以能長期存在，是否也凸顯維基百科的運作機制並非在所有情況下都能即時發揮作用？特別是在資訊冷門、參與編輯者較少的領域，錯誤往往難以及時被發現與修正；若造假內容具備結構性與表面上的學術可信度，甚至可能反過來利用引用與交叉驗證機制，形成自我強化的假象。換言之，維基百科的修正能力，在某種程度上取決於「是否有人關注」。當缺乏足夠的檢視與討論時，錯誤不會自動消失，而可能長時間潛伏於系統之中。</p>
+
+    <h2 class="section-title reveal">即使會出錯，人們為何仍然相信維基百科？</h2>
+
+    <p class="reveal">既然維基百科曾出現如此巨大的錯誤，為何人們仍持續依賴它作為日常知識來源？當錯誤無法被完全避免時，人們為何仍願意相信它？</p>
+
+    <p class="reveal">這種信任，並非建立在「內容完全正確」之上，而是來自對其運作機制的理解與依賴。維基百科允許任何人編輯條目，使錯誤幾乎不可避免，但同時也讓錯誤更容易被發現與修正。條目可即時修改、版本可被追溯、爭議可被標記，這些設計使知識不再是固定結果，而是一個持續更新的過程。使用者所信任的，不是某一時刻的內容，而是整體系統具備自我修復的能力。</p>
+
+    <!-- 視覺拉花：金句 2 -->
+    <div class="quote-wrapper">
+        <div class="sticky-quote" data-text="使用者信任的，不是某一時刻的內容，而是系統具備自我修復的能力。"></div>
+    </div>
+
+    <p class="reveal">除了機制上的自我修正外，信任也來自群體協作的運作方式。然而，並非每個主題都有同樣多的人參與編輯與檢查。熱門議題通常擁有較多編輯者與檢視機會，錯誤較容易被發現與修正；反之，冷門領域因參與者較少，協作機制較難即時運作，也使錯誤更容易長時間存在。</p>
+
+    <p class="reveal">折毛事件正是在這樣的「協作稀疏區」中發生。當缺乏足夠的交叉檢視時，即使系統本身具備修正能力，仍可能無法發揮作用。這也顯示，維基百科的可靠性並非來自每一條目的即時正確，而是建立在整體系統中，多數內容能在持續關注下被逐步修正的過程。</p>
+
+    <h2 class="section-title reveal">使用習慣與資訊時代下的信任累積</h2>
+
+    <p class="reveal">在資訊爆炸的時代，維基百科提供快速且易於理解的知識入口。當使用者反覆從中獲得「大致正確」的資訊時，信任便在日常使用中逐漸累積，使其成為理解陌生議題的重要起點。然而，若將真實性完全寄託於平台本身，則可能產生新的風險。維基百科的運作前提，本就包含使用者的參與與判斷。在這樣的開放知識體系中，使用者不僅是資訊的接收者，同時也是影響資訊流通的重要角色。每一次的閱讀、引用與分享，實際上都在放大特定資訊的影響力。</p>
+
+    <p class="reveal">從新聞學觀點來看，這樣的轉變可由「守門人理論」理解。傳統媒體中，資訊由記者與編輯進行篩選與把關；而在維基百科中，守門功能被分散至所有使用者，使每個人都在某種程度上成為「共同守門人」。資訊是否被接受、質疑或修正，不再由少數人決定，而是由整體使用者的行動共同塑造。</p>
+
+    <!-- 視覺拉花：金句 3 -->
+    <div class="quote-wrapper">
+        <div class="sticky-quote" data-text="守門功能被分散，資訊是否被接受，是由整體使用者的行動共同塑造。"></div>
+    </div>
+
+    <p class="reveal">此外，維基百科的運作亦仰賴制度與組織的支撐，平台維護與營運主要由維基媒體基金會（Wikimedia Foundation）負責，資金來源以小額募款為主。這種非商業化模式，有助於降低廣告與商業利益對內容的影響，也回應創辦人吉米・威爾斯（Jimmy Wales）對知識中立與公共性的理念。</p>
+
+    <p class="reveal">可是「非營利」並不等同於「沒有偏誤」，即使排除了公司層級的商業動機，仍無法避免編輯者個人的立場、偏見或惡意行為。折毛事件即顯示，造假未必源於金錢，而可能來自個人成就感或對虛構敘事的投入。維基百科的內容品質，並非由資金結構單一保證，而是仰賴開放編輯、版本紀錄與社群審視等機制的交互運作。非商業化降低了部分風險，但真正維持其可信度的，仍是可被檢驗與修正的公開過程。</p>
+
+    <h2 class="section-title reveal">在開放知識中，使用者該如何判斷真實？</h2>
+
+    <p class="reveal">在使用維基百科時，建立基本的資訊判斷能力格外重要。透過檢視引用來源、比對不同版本與留意爭議標記，使用者可有效降低誤信錯誤資訊的風險。若大眾傾向快速接受而缺乏查證，錯誤資訊即使短暫存在，也可能迅速擴散；相反地，若普遍具備批判與查證能力，整體知識品質亦將隨之提升。</p>
+
+    <p class="reveal">所以，在維基百科這樣的開放平台中，「真實」並非由單一機制所保證，而是由平台設計與使用者行為共同建構的動態結果。它或許不完美，但正是在不斷修正與參與之中，逐步接近我們所理解的事實與共識。</p>
+
+    <!-- 視覺拉花：金句 4 -->
+    <div class="quote-wrapper">
+        <div class="sticky-quote" data-text="「真實」並非單一機制保證，而是由平台設計與使用者行為共同建構的動態結果。"></div>
+    </div>
+
+</div>
+
+<script>
+// --- 1. 進度條滾動 ---
+function updateProgressBar() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / docHeight) * 100;
+    document.getElementById("progressBar").style.width = progress + "%";
+}
+window.addEventListener('scroll', updateProgressBar);
+updateProgressBar();
+
+// --- 2. 內文揭露動畫 ---
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+        }
+    });
+}, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// --- 3. 關鍵句打字機與發光特效 ---
+function typeWriter(el, text, speed = 60) {
+    let i = 0;
+    el.innerHTML = "";
+    el.classList.add('cursor');
+    
+    function typing() {
+        if (i < text.length) {
+            el.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+        } else {
+            setTimeout(() => {
+                el.classList.remove('cursor');
+            }, 2000);
+        }
+    }
+    typing();
+}
+
+const quoteObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        const quoteEl = entry.target.querySelector('.sticky-quote');
+        
+        if (entry.isIntersecting) {
+            quoteEl.classList.add('active');
+            if (!quoteEl.classList.contains('typed')) {
+                typeWriter(quoteEl, quoteEl.dataset.text);
+                quoteEl.classList.add('typed');
+            }
+        } else {
+            quoteEl.classList.remove('active');
+        }
+    });
+}, { threshold: 0.4 });
+
+document.querySelectorAll('.quote-wrapper').forEach(wrapper => {
+    quoteObserver.observe(wrapper);
+});
+</script>
+
+</body>
+</html>
